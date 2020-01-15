@@ -7,7 +7,6 @@
 5.CSS<br/>
 
 ***Packages Used***
-#
 1.Flask<br/>
 2.Flask-RESTful<br/>
 3.tweepy<br/>
