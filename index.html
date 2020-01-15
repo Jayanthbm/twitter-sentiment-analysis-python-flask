@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous"
+    />
+    <script
+      type="text/javascript"
+      src="https://www.gstatic.com/charts/loader.js"
+    ></script>
+    <title>Sentiment Analysis</title>
+    <style>
+      .tw-block-parent {
+        width: 100%;
+        font: 14px/1.4 Roboto, Helvetica, Arial, Tahoma, sans-serif;
+        font-weight: 300;
+        color: #292f33;
+        margin: 1%;
+      }
+
+      .Avatar {
+        width: 32px;
+        height: 32px;
+        background-size: 32px;
+      }
+
+      .timeline-TweetList-tweet {
+        border-top: 1px solid rgba(15, 70, 100, 0.12);
+      }
+
+      .timeline-TweetList-tweet:first-of-type {
+        border-top: none;
+      }
+
+      .timeline-Tweet {
+        position: relative;
+        padding: 10px;
+      }
+
+      .timeline-Tweet a,
+      .timeline-Tweet .link {
+        color: #3b94d9;
+        text-decoration: none;
+        outline: 0;
+      }
+
+      .timeline-Tweet a:hover,
+      .timeline-Tweet .link:hover {
+        color: #55acee;
+      }
+
+      .timeline-Tweet-brand {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+      }
+
+      .timeline-Tweet-author {
+        position: relative;
+        margin-bottom: 2px;
+        padding-left: 40px;
+      }
+
+      .timeline-Tweet-text {
+        margin-left: 40px;
+        margin-bottom: 12px;
+        word-wrap: break-word;
+        font-size: 18px;
+        line-height: 24px;
+        font-weight: 300;
+      }
+
+      .timeline-Tweet-metadata {
+        position: absolute;
+        bottom: 12px;
+        right: 10px;
+      }
+
+      .timeline-Tweet-timestamp {
+        font-size: 12px;
+        line-height: 18px;
+        color: #e1e8ed;
+        transition: color 0.2s;
+      }
+
+      .timeline-Tweet:hover {
+        background-color: rgba(160, 200, 220, 0.12);
+      }
+
+      .timeline-Tweet:hover .timeline-Tweet-brand .Icon {
+        background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MiA3MiI+PHBhdGggZmlsbD0ibm9uZSIgZD0iTTAgMGg3MnY3MkgweiIvPjxwYXRoIGNsYXNzPSJpY29uIiBmaWxsPSIjNTVhY2VlIiBkPSJNNjguODEyIDE1LjE0Yy0yLjM0OCAxLjA0LTQuODcgMS43NDQtNy41MiAyLjA2IDIuNzA0LTEuNjIgNC43OC00LjE4NiA1Ljc1Ny03LjI0My0yLjUzIDEuNS01LjMzIDIuNTkyLTguMzE0IDMuMTc2QzU2LjM1IDEwLjU5IDUyLjk0OCA5IDQ5LjE4MiA5Yy03LjIzIDAtMTMuMDkyIDUuODYtMTMuMDkyIDEzLjA5MyAwIDEuMDI2LjExOCAyLjAyLjMzOCAyLjk4QzI1LjU0MyAyNC41MjcgMTUuOSAxOS4zMTggOS40NCAxMS4zOTZjLTEuMTI1IDEuOTM2LTEuNzcgNC4xODQtMS43NyA2LjU4IDAgNC41NDMgMi4zMTIgOC41NTIgNS44MjQgMTAuOS0yLjE0Ni0uMDctNC4xNjUtLjY1OC01LjkzLTEuNjQtLjAwMi4wNTYtLjAwMi4xMS0uMDAyLjE2MyAwIDYuMzQ1IDQuNTEzIDExLjYzOCAxMC41MDQgMTIuODQtMS4xLjI5OC0yLjI1Ni40NTctMy40NS40NTctLjg0NSAwLTEuNjY2LS4wNzgtMi40NjQtLjIzIDEuNjY3IDUuMiA2LjUgOC45ODUgMTIuMjMgOS4wOS00LjQ4MiAzLjUxLTEwLjEzIDUuNjA1LTE2LjI2IDUuNjA1LTEuMDU1IDAtMi4wOTYtLjA2LTMuMTIyLS4xODQgNS43OTQgMy43MTcgMTIuNjc2IDUuODgyIDIwLjA2NyA1Ljg4MiAyNC4wODMgMCAzNy4yNS0xOS45NSAzNy4yNS0zNy4yNSAwLS41NjUtLjAxMy0xLjEzMy0uMDM4LTEuNjkzIDIuNTU4LTEuODQ3IDQuNzc4LTQuMTUgNi41MzItNi43NzR6Ii8+PC9zdmc+");
+      }
+
+      .timeline-Tweet:hover .timeline-Tweet-action .Icon {
+        opacity: 1;
+      }
+
+      .timeline-Tweet:hover .timeline-Tweet-timestamp {
+        color: #667580;
+      }
+
+      .TweetAuthor {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        word-wrap: normal;
+      }
+
+      .TweetAuthor-link {
+        font-weight: inherit;
+        color: inherit;
+        text-decoration: inherit;
+      }
+
+      .TweetAuthor-avatar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 32px;
+        height: 32px;
+        overflow: hidden;
+        border-radius: 4px;
+      }
+
+      .TweetAuthor-name {
+        margin-top: 5px;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 18px;
+      }
+
+      .TweetAuthor-screenName {
+        margin-left: 5px;
+        font-size: 13px;
+        line-height: 18px;
+        font-weight: 300;
+        color: #8899a6;
+      }
+
+      .Icon {
+        display: inline-block;
+        width: 1em;
+        height: 1.25em;
+        background-repeat: no-repeat;
+        background-size: contain;
+        vertical-align: text-bottom;
+        opacity: 0.6;
+        transition: opacity 0.2s, background-image 0.2s;
+      }
+
+      .Icon:hover {
+        opacity: 1;
+      }
+
+      .Icon--twitter {
+        opacity: 1;
+        background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MiA3MiI+PHBhdGggZmlsbD0ibm9uZSIgZD0iTTAgMGg3MnY3MkgweiIvPjxwYXRoIGNsYXNzPSJpY29uIiBmaWxsPSIjZTFlOGVkIiBkPSJNNjguODEyIDE1LjE0Yy0yLjM0OCAxLjA0LTQuODcgMS43NDQtNy41MiAyLjA2IDIuNzA0LTEuNjIgNC43OC00LjE4NiA1Ljc1Ny03LjI0My0yLjUzIDEuNS01LjMzIDIuNTkyLTguMzE0IDMuMTc2QzU2LjM1IDEwLjU5IDUyLjk0OCA5IDQ5LjE4MiA5Yy03LjIzIDAtMTMuMDkyIDUuODYtMTMuMDkyIDEzLjA5MyAwIDEuMDI2LjExOCAyLjAyLjMzOCAyLjk4QzI1LjU0MyAyNC41MjcgMTUuOSAxOS4zMTggOS40NCAxMS4zOTZjLTEuMTI1IDEuOTM2LTEuNzcgNC4xODQtMS43NyA2LjU4IDAgNC41NDMgMi4zMTIgOC41NTIgNS44MjQgMTAuOS0yLjE0Ni0uMDctNC4xNjUtLjY1OC01LjkzLTEuNjQtLjAwMi4wNTYtLjAwMi4xMS0uMDAyLjE2MyAwIDYuMzQ1IDQuNTEzIDExLjYzOCAxMC41MDQgMTIuODQtMS4xLjI5OC0yLjI1Ni40NTctMy40NS40NTctLjg0NSAwLTEuNjY2LS4wNzgtMi40NjQtLjIzIDEuNjY3IDUuMiA2LjUgOC45ODUgMTIuMjMgOS4wOS00LjQ4MiAzLjUxLTEwLjEzIDUuNjA1LTE2LjI2IDUuNjA1LTEuMDU1IDAtMi4wOTYtLjA2LTMuMTIyLS4xODQgNS43OTQgMy43MTcgMTIuNjc2IDUuODgyIDIwLjA2NyA1Ljg4MiAyNC4wODMgMCAzNy4yNS0xOS45NSAzNy4yNS0zNy4yNSAwLS41NjUtLjAxMy0xLjEzMy0uMDM4LTEuNjkzIDIuNTU4LTEuODQ3IDQuNzc4LTQuMTUgNi41MzItNi43NzR6Ii8+PC9zdmc+");
+      }
+
+      .Icon--twitter:hover {
+        background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MiA3MiI+PHBhdGggZmlsbD0ibm9uZSIgZD0iTTAgMGg3MnY3MkgweiIvPjxwYXRoIGNsYXNzPSJpY29uIiBmaWxsPSIjNTVhY2VlIiBkPSJNNjguODEyIDE1LjE0Yy0yLjM0OCAxLjA0LTQuODcgMS43NDQtNy41MiAyLjA2IDIuNzA0LTEuNjIgNC43OC00LjE4NiA1Ljc1Ny03LjI0My0yLjUzIDEuNS01LjMzIDIuNTkyLTguMzE0IDMuMTc2QzU2LjM1IDEwLjU5IDUyLjk0OCA5IDQ5LjE4MiA5Yy03LjIzIDAtMTMuMDkyIDUuODYtMTMuMDkyIDEzLjA5MyAwIDEuMDI2LjExOCAyLjAyLjMzOCAyLjk4QzI1LjU0MyAyNC41MjcgMTUuOSAxOS4zMTggOS40NCAxMS4zOTZjLTEuMTI1IDEuOTM2LTEuNzcgNC4xODQtMS43NyA2LjU4IDAgNC41NDMgMi4zMTIgOC41NTIgNS44MjQgMTAuOS0yLjE0Ni0uMDctNC4xNjUtLjY1OC01LjkzLTEuNjQtLjAwMi4wNTYtLjAwMi4xMS0uMDAyLjE2MyAwIDYuMzQ1IDQuNTEzIDExLjYzOCAxMC41MDQgMTIuODQtMS4xLjI5OC0yLjI1Ni40NTctMy40NS40NTctLjg0NSAwLTEuNjY2LS4wNzgtMi40NjQtLjIzIDEuNjY3IDUuMiA2LjUgOC45ODUgMTIuMjMgOS4wOS00LjQ4MiAzLjUxLTEwLjEzIDUuNjA1LTE2LjI2IDUuNjA1LTEuMDU1IDAtMi4wOTYtLjA2LTMuMTIyLS4xODQgNS43OTQgMy43MTcgMTIuNjc2IDUuODgyIDIwLjA2NyA1Ljg4MiAyNC4wODMgMCAzNy4yNS0xOS45NSAzNy4yNS0zNy4yNSAwLS41NjUtLjAxMy0xLjEzMy0uMDM4LTEuNjkzIDIuNTU4LTEuODQ3IDQuNzc4LTQuMTUgNi41MzItNi43NzR6Ii8+PC9zdmc+");
+      }
+
+      #Spinner 
+      {
+        @-webkit-keyframes rotate-forever {
+        0% {
+          -webkit-transform: rotate(0deg)
+          };
+        100% {
+          -webkit-transform:rotate(360deg);
+          } 
+      }
+      }
+      @-moz-keyframes rotate-forever {
+        0% {
+          -moz-transform: rotate(0deg);
+        }
+        100% {
+          -moz-transform: rotate(360deg);
+        }
+      }
+      @keyframes rotate-forever {
+        0% {
+          -webkit-transform: rotate(0deg);
+          -moz-transform: rotate(0deg);
+          -ms-transform: rotate(0deg);
+          -o-transform: rotate(0deg);
+          transform: rotate(0deg);
+        }
+        100% {
+          -webkit-transform: rotate(360deg);
+          -moz-transform: rotate(360deg);
+          -ms-transform: rotate(360deg);
+          -o-transform: rotate(360deg);
+          transform: rotate(360deg);
+        }
+      }
+
+      .half-circle {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        /* background-color: #38726c; */
+        background-color: #3b94d9;
+        border-radius: 50%;
+        /* border: 1px solid #38726c; */
+        border: 1px solid #3b94d9;
+        overflow: hidden;
+        -webkit-animation-duration: 120s;
+        -moz-animation-duration: 120s;
+        animation-duration: 120s;
+        -webkit-animation-iteration-count: infinite;
+        -moz-animation-iteration-count: infinite;
+        animation-iteration-count: infinite;
+        -webkit-animation-timing-function: linear;
+        -moz-animation-timing-function: linear;
+        animation-timing-function: linear;
+        -webkit-animation-name: rotate-forever;
+        -moz-animation-name: rotate-forever;
+        animation-name: rotate-forever;
+      }
+      .half-circle:before {
+        position: absolute;
+        height: 50%;
+        width: 100%;
+        content: "";
+        background-color: #ffffff;
+      }
+      .half-circle:nth-of-type(1) {
+        width: 6px;
+        height: 6px;
+        z-index: 39;
+        -webkit-animation-duration: 120s;
+        -moz-animation-duration: 120s;
+        animation-duration: 120s;
+      }
+      .half-circle:nth-of-type(2) {
+        width: 12px;
+        height: 12px;
+        z-index: 38;
+        -webkit-animation-duration: 60s;
+        -moz-animation-duration: 60s;
+        animation-duration: 60s;
+      }
+      .half-circle:nth-of-type(3) {
+        width: 18px;
+        height: 18px;
+        z-index: 37;
+        -webkit-animation-duration: 40s;
+        -moz-animation-duration: 40s;
+        animation-duration: 40s;
+      }
+      .half-circle:nth-of-type(4) {
+        width: 24px;
+        height: 24px;
+        z-index: 36;
+        -webkit-animation-duration: 30s;
+        -moz-animation-duration: 30s;
+        animation-duration: 30s;
+      }
+      .half-circle:nth-of-type(5) {
+        width: 30px;
+        height: 30px;
+        z-index: 35;
+        -webkit-animation-duration: 24s;
+        -moz-animation-duration: 24s;
+        animation-duration: 24s;
+      }
+      .half-circle:nth-of-type(6) {
+        width: 36px;
+        height: 36px;
+        z-index: 34;
+        -webkit-animation-duration: 20s;
+        -moz-animation-duration: 20s;
+        animation-duration: 20s;
+      }
+      .half-circle:nth-of-type(7) {
+        width: 42px;
+        height: 42px;
+        z-index: 33;
+        -webkit-animation-duration: 17.1428571429s;
+        -moz-animation-duration: 17.1428571429s;
+        animation-duration: 17.1428571429s;
+      }
+      .half-circle:nth-of-type(8) {
+        width: 48px;
+        height: 48px;
+        z-index: 32;
+        -webkit-animation-duration: 15s;
+        -moz-animation-duration: 15s;
+        animation-duration: 15s;
+      }
+      .half-circle:nth-of-type(9) {
+        width: 54px;
+        height: 54px;
+        z-index: 31;
+        -webkit-animation-duration: 13.3333333333s;
+        -moz-animation-duration: 13.3333333333s;
+        animation-duration: 13.3333333333s;
+      }
+      .half-circle:nth-of-type(10) {
+        width: 60px;
+        height: 60px;
+        z-index: 30;
+        -webkit-animation-duration: 12s;
+        -moz-animation-duration: 12s;
+        animation-duration: 12s;
+      }
+      .half-circle:nth-of-type(11) {
+        width: 66px;
+        height: 66px;
+        z-index: 29;
+        -webkit-animation-duration: 10.9090909091s;
+        -moz-animation-duration: 10.9090909091s;
+        animation-duration: 10.9090909091s;
+      }
+      .half-circle:nth-of-type(12) {
+        width: 72px;
+        height: 72px;
+        z-index: 28;
+        -webkit-animation-duration: 10s;
+        -moz-animation-duration: 10s;
+        animation-duration: 10s;
+      }
+      .half-circle:nth-of-type(13) {
+        width: 78px;
+        height: 78px;
+        z-index: 27;
+        -webkit-animation-duration: 9.2307692308s;
+        -moz-animation-duration: 9.2307692308s;
+        animation-duration: 9.2307692308s;
+      }
+      .half-circle:nth-of-type(14) {
+        width: 84px;
+        height: 84px;
+        z-index: 26;
+        -webkit-animation-duration: 8.5714285714s;
+        -moz-animation-duration: 8.5714285714s;
+        animation-duration: 8.5714285714s;
+      }
+      .half-circle:nth-of-type(15) {
+        width: 90px;
+        height: 90px;
+        z-index: 25;
+        -webkit-animation-duration: 8s;
+        -moz-animation-duration: 8s;
+        animation-duration: 8s;
+      }
+      .half-circle:nth-of-type(16) {
+        width: 96px;
+        height: 96px;
+        z-index: 24;
+        -webkit-animation-duration: 7.5s;
+        -moz-animation-duration: 7.5s;
+        animation-duration: 7.5s;
+      }
+      .half-circle:nth-of-type(17) {
+        width: 102px;
+        height: 102px;
+        z-index: 23;
+        -webkit-animation-duration: 7.0588235294s;
+        -moz-animation-duration: 7.0588235294s;
+        animation-duration: 7.0588235294s;
+      }
+      .half-circle:nth-of-type(18) {
+        width: 108px;
+        height: 108px;
+        z-index: 22;
+        -webkit-animation-duration: 6.6666666667s;
+        -moz-animation-duration: 6.6666666667s;
+        animation-duration: 6.6666666667s;
+      }
+      .half-circle:nth-of-type(19) {
+        width: 114px;
+        height: 114px;
+        z-index: 21;
+        -webkit-animation-duration: 6.3157894737s;
+        -moz-animation-duration: 6.3157894737s;
+        animation-duration: 6.3157894737s;
+      }
+      .half-circle:nth-of-type(20) {
+        width: 120px;
+        height: 120px;
+        z-index: 20;
+        -webkit-animation-duration: 6s;
+        -moz-animation-duration: 6s;
+        animation-duration: 6s;
+      }
+      .half-circle:nth-of-type(21) {
+        width: 126px;
+        height: 126px;
+        z-index: 19;
+        -webkit-animation-duration: 5.7142857143s;
+        -moz-animation-duration: 5.7142857143s;
+        animation-duration: 5.7142857143s;
+      }
+      .half-circle:nth-of-type(22) {
+        width: 132px;
+        height: 132px;
+        z-index: 18;
+        -webkit-animation-duration: 5.4545454545s;
+        -moz-animation-duration: 5.4545454545s;
+        animation-duration: 5.4545454545s;
+      }
+      .half-circle:nth-of-type(23) {
+        width: 138px;
+        height: 138px;
+        z-index: 17;
+        -webkit-animation-duration: 5.2173913043s;
+        -moz-animation-duration: 5.2173913043s;
+        animation-duration: 5.2173913043s;
+      }
+      .half-circle:nth-of-type(24) {
+        width: 144px;
+        height: 144px;
+        z-index: 16;
+        -webkit-animation-duration: 5s;
+        -moz-animation-duration: 5s;
+        animation-duration: 5s;
+      }
+      .half-circle:nth-of-type(25) {
+        width: 150px;
+        height: 150px;
+        z-index: 15;
+        -webkit-animation-duration: 4.8s;
+        -moz-animation-duration: 4.8s;
+        animation-duration: 4.8s;
+      }
+      .half-circle:nth-of-type(26) {
+        width: 156px;
+        height: 156px;
+        z-index: 14;
+        -webkit-animation-duration: 4.6153846154s;
+        -moz-animation-duration: 4.6153846154s;
+        animation-duration: 4.6153846154s;
+      }
+      .half-circle:nth-of-type(27) {
+        width: 162px;
+        height: 162px;
+        z-index: 13;
+        -webkit-animation-duration: 4.4444444444s;
+        -moz-animation-duration: 4.4444444444s;
+        animation-duration: 4.4444444444s;
+      }
+      .half-circle:nth-of-type(28) {
+        width: 168px;
+        height: 168px;
+        z-index: 12;
+        -webkit-animation-duration: 4.2857142857s;
+        -moz-animation-duration: 4.2857142857s;
+        animation-duration: 4.2857142857s;
+      }
+      .half-circle:nth-of-type(29) {
+        width: 174px;
+        height: 174px;
+        z-index: 11;
+        -webkit-animation-duration: 4.1379310345s;
+        -moz-animation-duration: 4.1379310345s;
+        animation-duration: 4.1379310345s;
+      }
+      .half-circle:nth-of-type(30) {
+        width: 180px;
+        height: 180px;
+        z-index: 10;
+        -webkit-animation-duration: 4s;
+        -moz-animation-duration: 4s;
+        animation-duration: 4s;
+      }
+      .half-circle:nth-of-type(31) {
+        width: 186px;
+        height: 186px;
+        z-index: 9;
+        -webkit-animation-duration: 3.8709677419s;
+        -moz-animation-duration: 3.8709677419s;
+        animation-duration: 3.8709677419s;
+      }
+      .half-circle:nth-of-type(32) {
+        width: 192px;
+        height: 192px;
+        z-index: 8;
+        -webkit-animation-duration: 3.75s;
+        -moz-animation-duration: 3.75s;
+        animation-duration: 3.75s;
+      }
+      .half-circle:nth-of-type(33) {
+        width: 198px;
+        height: 198px;
+        z-index: 7;
+        -webkit-animation-duration: 3.6363636364s;
+        -moz-animation-duration: 3.6363636364s;
+        animation-duration: 3.6363636364s;
+      }
+      .half-circle:nth-of-type(34) {
+        width: 204px;
+        height: 204px;
+        z-index: 6;
+        -webkit-animation-duration: 3.5294117647s;
+        -moz-animation-duration: 3.5294117647s;
+        animation-duration: 3.5294117647s;
+      }
+      .half-circle:nth-of-type(35) {
+        width: 210px;
+        height: 210px;
+        z-index: 5;
+        -webkit-animation-duration: 3.4285714286s;
+        -moz-animation-duration: 3.4285714286s;
+        animation-duration: 3.4285714286s;
+      }
+      .half-circle:nth-of-type(36) {
+        width: 216px;
+        height: 216px;
+        z-index: 4;
+        -webkit-animation-duration: 3.3333333333s;
+        -moz-animation-duration: 3.3333333333s;
+        animation-duration: 3.3333333333s;
+      }
+      .half-circle:nth-of-type(37) {
+        width: 222px;
+        height: 222px;
+        z-index: 3;
+        -webkit-animation-duration: 3.2432432432s;
+        -moz-animation-duration: 3.2432432432s;
+        animation-duration: 3.2432432432s;
+      }
+      .half-circle:nth-of-type(38) {
+        width: 228px;
+        height: 228px;
+        z-index: 2;
+        -webkit-animation-duration: 3.1578947368s;
+        -moz-animation-duration: 3.1578947368s;
+        animation-duration: 3.1578947368s;
+      }
+      .half-circle:nth-of-type(39) {
+        width: 234px;
+        height: 234px;
+        z-index: 1;
+        -webkit-animation-duration: 3.0769230769s;
+        -moz-animation-duration: 3.0769230769s;
+        animation-duration: 3.0769230769s;
+      }
+      .half-circle:nth-of-type(40) {
+        width: 240px;
+        height: 240px;
+        z-index: 0;
+        -webkit-animation-duration: 3s;
+        -moz-animation-duration: 3s;
+        animation-duration: 3s;
+      }
+      .half-circle:nth-of-type(41) {
+        width: 246px;
+        height: 246px;
+        z-index: -1;
+        -webkit-animation-duration: 2.9268292683s;
+        -moz-animation-duration: 2.9268292683s;
+        animation-duration: 2.9268292683s;
+      }
+      .half-circle:nth-of-type(42) {
+        width: 252px;
+        height: 252px;
+        z-index: -2;
+        -webkit-animation-duration: 2.8571428571s;
+        -moz-animation-duration: 2.8571428571s;
+        animation-duration: 2.8571428571s;
+      }
+      .half-circle:nth-of-type(43) {
+        width: 258px;
+        height: 258px;
+        z-index: -3;
+        -webkit-animation-duration: 2.7906976744s;
+        -moz-animation-duration: 2.7906976744s;
+        animation-duration: 2.7906976744s;
+      }
+      .half-circle:nth-of-type(44) {
+        width: 264px;
+        height: 264px;
+        z-index: -4;
+        -webkit-animation-duration: 2.7272727273s;
+        -moz-animation-duration: 2.7272727273s;
+        animation-duration: 2.7272727273s;
+      }
+      .half-circle:nth-of-type(45) {
+        width: 270px;
+        height: 270px;
+        z-index: -5;
+        -webkit-animation-duration: 2.6666666667s;
+        -moz-animation-duration: 2.6666666667s;
+        animation-duration: 2.6666666667s;
+      }
+      .half-circle:nth-of-type(46) {
+        width: 276px;
+        height: 276px;
+        z-index: -6;
+        -webkit-animation-duration: 2.6086956522s;
+        -moz-animation-duration: 2.6086956522s;
+        animation-duration: 2.6086956522s;
+      }
+      .half-circle:nth-of-type(47) {
+        width: 282px;
+        height: 282px;
+        z-index: -7;
+        -webkit-animation-duration: 2.5531914894s;
+        -moz-animation-duration: 2.5531914894s;
+        animation-duration: 2.5531914894s;
+      }
+      .half-circle:nth-of-type(48) {
+        width: 288px;
+        height: 288px;
+        z-index: -8;
+        -webkit-animation-duration: 2.5s;
+        -moz-animation-duration: 2.5s;
+        animation-duration: 2.5s;
+      }
+      .half-circle:nth-of-type(49) {
+        width: 294px;
+        height: 294px;
+        z-index: -9;
+        -webkit-animation-duration: 2.4489795918s;
+        -moz-animation-duration: 2.4489795918s;
+        animation-duration: 2.4489795918s;
+      }
+      .half-circle:nth-of-type(50) {
+        width: 300px;
+        height: 300px;
+        z-index: -10;
+        -webkit-animation-duration: 2.4s;
+        -moz-animation-duration: 2.4s;
+        animation-duration: 2.4s;
+      }
+      .half-circle:nth-of-type(51) {
+        width: 306px;
+        height: 306px;
+        z-index: -11;
+        -webkit-animation-duration: 2.3529411765s;
+        -moz-animation-duration: 2.3529411765s;
+        animation-duration: 2.3529411765s;
+      }
+      .half-circle:nth-of-type(52) {
+        width: 312px;
+        height: 312px;
+        z-index: -12;
+        -webkit-animation-duration: 2.3076923077s;
+        -moz-animation-duration: 2.3076923077s;
+        animation-duration: 2.3076923077s;
+      }
+      .half-circle:nth-of-type(53) {
+        width: 318px;
+        height: 318px;
+        z-index: -13;
+        -webkit-animation-duration: 2.2641509434s;
+        -moz-animation-duration: 2.2641509434s;
+        animation-duration: 2.2641509434s;
+      }
+      .half-circle:nth-of-type(54) {
+        width: 324px;
+        height: 324px;
+        z-index: -14;
+        -webkit-animation-duration: 2.2222222222s;
+        -moz-animation-duration: 2.2222222222s;
+        animation-duration: 2.2222222222s;
+      }
+      .half-circle:nth-of-type(55) {
+        width: 330px;
+        height: 330px;
+        z-index: -15;
+        -webkit-animation-duration: 2.1818181818s;
+        -moz-animation-duration: 2.1818181818s;
+        animation-duration: 2.1818181818s;
+      }
+      .half-circle:nth-of-type(56) {
+        width: 336px;
+        height: 336px;
+        z-index: -16;
+        -webkit-animation-duration: 2.1428571429s;
+        -moz-animation-duration: 2.1428571429s;
+        animation-duration: 2.1428571429s;
+      }
+      .half-circle:nth-of-type(57) {
+        width: 342px;
+        height: 342px;
+        z-index: -17;
+        -webkit-animation-duration: 2.1052631579s;
+        -moz-animation-duration: 2.1052631579s;
+        animation-duration: 2.1052631579s;
+      }
+      .half-circle:nth-of-type(58) {
+        width: 348px;
+        height: 348px;
+        z-index: -18;
+        -webkit-animation-duration: 2.0689655172s;
+        -moz-animation-duration: 2.0689655172s;
+        animation-duration: 2.0689655172s;
+      }
+      .half-circle:nth-of-type(59) {
+        width: 354px;
+        height: 354px;
+        z-index: -19;
+        -webkit-animation-duration: 2.0338983051s;
+        -moz-animation-duration: 2.0338983051s;
+        animation-duration: 2.0338983051s;
+      }
+      .half-circle:nth-of-type(60) {
+        width: 360px;
+        height: 360px;
+        z-index: -20;
+        -webkit-animation-duration: 2s;
+        -moz-animation-duration: 2s;
+        animation-duration: 2s;
+      }
+      .half-circle:nth-of-type(61) {
+        width: 366px;
+        height: 366px;
+        z-index: -21;
+        -webkit-animation-duration: 1.9672131148s;
+        -moz-animation-duration: 1.9672131148s;
+        animation-duration: 1.9672131148s;
+      }
+      .half-circle:nth-of-type(62) {
+        width: 372px;
+        height: 372px;
+        z-index: -22;
+        -webkit-animation-duration: 1.935483871s;
+        -moz-animation-duration: 1.935483871s;
+        animation-duration: 1.935483871s;
+      }
+      .half-circle:nth-of-type(63) {
+        width: 378px;
+        height: 378px;
+        z-index: -23;
+        -webkit-animation-duration: 1.9047619048s;
+        -moz-animation-duration: 1.9047619048s;
+        animation-duration: 1.9047619048s;
+      }
+      .half-circle:nth-of-type(64) {
+        width: 384px;
+        height: 384px;
+        z-index: -24;
+        -webkit-animation-duration: 1.875s;
+        -moz-animation-duration: 1.875s;
+        animation-duration: 1.875s;
+      }
+      .half-circle:nth-of-type(65) {
+        width: 390px;
+        height: 390px;
+        z-index: -25;
+        -webkit-animation-duration: 1.8461538462s;
+        -moz-animation-duration: 1.8461538462s;
+        animation-duration: 1.8461538462s;
+      }
+      .half-circle:nth-of-type(66) {
+        width: 396px;
+        height: 396px;
+        z-index: -26;
+        -webkit-animation-duration: 1.8181818182s;
+        -moz-animation-duration: 1.8181818182s;
+        animation-duration: 1.8181818182s;
+      }
+      .half-circle:nth-of-type(67) {
+        width: 402px;
+        height: 402px;
+        z-index: -27;
+        -webkit-animation-duration: 1.7910447761s;
+        -moz-animation-duration: 1.7910447761s;
+        animation-duration: 1.7910447761s;
+      }
+      .half-circle:nth-of-type(68) {
+        width: 408px;
+        height: 408px;
+        z-index: -28;
+        -webkit-animation-duration: 1.7647058824s;
+        -moz-animation-duration: 1.7647058824s;
+        animation-duration: 1.7647058824s;
+      }
+      .half-circle:nth-of-type(69) {
+        width: 414px;
+        height: 414px;
+        z-index: -29;
+        -webkit-animation-duration: 1.7391304348s;
+        -moz-animation-duration: 1.7391304348s;
+        animation-duration: 1.7391304348s;
+      }
+      .half-circle:nth-of-type(70) {
+        width: 420px;
+        height: 420px;
+        z-index: -30;
+        -webkit-animation-duration: 1.7142857143s;
+        -moz-animation-duration: 1.7142857143s;
+        animation-duration: 1.7142857143s;
+      }
+      .half-circle:nth-of-type(71) {
+        width: 426px;
+        height: 426px;
+        z-index: -31;
+        -webkit-animation-duration: 1.6901408451s;
+        -moz-animation-duration: 1.6901408451s;
+        animation-duration: 1.6901408451s;
+      }
+      .half-circle:nth-of-type(72) {
+        width: 432px;
+        height: 432px;
+        z-index: -32;
+        -webkit-animation-duration: 1.6666666667s;
+        -moz-animation-duration: 1.6666666667s;
+        animation-duration: 1.6666666667s;
+      }
+      .half-circle:nth-of-type(73) {
+        width: 438px;
+        height: 438px;
+        z-index: -33;
+        -webkit-animation-duration: 1.6438356164s;
+        -moz-animation-duration: 1.6438356164s;
+        animation-duration: 1.6438356164s;
+      }
+      .half-circle:nth-of-type(74) {
+        width: 444px;
+        height: 444px;
+        z-index: -34;
+        -webkit-animation-duration: 1.6216216216s;
+        -moz-animation-duration: 1.6216216216s;
+        animation-duration: 1.6216216216s;
+      }
+      .half-circle:nth-of-type(75) {
+        width: 450px;
+        height: 450px;
+        z-index: -35;
+        -webkit-animation-duration: 1.6s;
+        -moz-animation-duration: 1.6s;
+        animation-duration: 1.6s;
+      }
+      .half-circle:nth-of-type(76) {
+        width: 456px;
+        height: 456px;
+        z-index: -36;
+        -webkit-animation-duration: 1.5789473684s;
+        -moz-animation-duration: 1.5789473684s;
+        animation-duration: 1.5789473684s;
+      }
+      .half-circle:nth-of-type(77) {
+        width: 462px;
+        height: 462px;
+        z-index: -37;
+        -webkit-animation-duration: 1.5584415584s;
+        -moz-animation-duration: 1.5584415584s;
+        animation-duration: 1.5584415584s;
+      }
+      .half-circle:nth-of-type(78) {
+        width: 468px;
+        height: 468px;
+        z-index: -38;
+        -webkit-animation-duration: 1.5384615385s;
+        -moz-animation-duration: 1.5384615385s;
+        animation-duration: 1.5384615385s;
+      }
+      .half-circle:nth-of-type(79) {
+        width: 474px;
+        height: 474px;
+        z-index: -39;
+        -webkit-animation-duration: 1.5189873418s;
+        -moz-animation-duration: 1.5189873418s;
+        animation-duration: 1.5189873418s;
+      }
+      .half-circle:nth-of-type(80) {
+        width: 480px;
+        height: 480px;
+        z-index: -40;
+        -webkit-animation-duration: 1.5s;
+        -moz-animation-duration: 1.5s;
+        animation-duration: 1.5s;
+      }
+      .half-circle:nth-of-type(81) {
+        width: 486px;
+        height: 486px;
+        z-index: -41;
+        -webkit-animation-duration: 1.4814814815s;
+        -moz-animation-duration: 1.4814814815s;
+        animation-duration: 1.4814814815s;
+      }
+      .half-circle:nth-of-type(82) {
+        width: 492px;
+        height: 492px;
+        z-index: -42;
+        -webkit-animation-duration: 1.4634146341s;
+        -moz-animation-duration: 1.4634146341s;
+        animation-duration: 1.4634146341s;
+      }
+      .half-circle:nth-of-type(83) {
+        width: 498px;
+        height: 498px;
+        z-index: -43;
+        -webkit-animation-duration: 1.4457831325s;
+        -moz-animation-duration: 1.4457831325s;
+        animation-duration: 1.4457831325s;
+      }
+      .half-circle:nth-of-type(84) {
+        width: 504px;
+        height: 504px;
+        z-index: -44;
+        -webkit-animation-duration: 1.4285714286s;
+        -moz-animation-duration: 1.4285714286s;
+        animation-duration: 1.4285714286s;
+      }
+      .half-circle:nth-of-type(85) {
+        width: 510px;
+        height: 510px;
+        z-index: -45;
+        -webkit-animation-duration: 1.4117647059s;
+        -moz-animation-duration: 1.4117647059s;
+        animation-duration: 1.4117647059s;
+      }
+      .half-circle:nth-of-type(86) {
+        width: 516px;
+        height: 516px;
+        z-index: -46;
+        -webkit-animation-duration: 1.3953488372s;
+        -moz-animation-duration: 1.3953488372s;
+        animation-duration: 1.3953488372s;
+      }
+      .half-circle:nth-of-type(87) {
+        width: 522px;
+        height: 522px;
+        z-index: -47;
+        -webkit-animation-duration: 1.3793103448s;
+        -moz-animation-duration: 1.3793103448s;
+        animation-duration: 1.3793103448s;
+      }
+      .half-circle:nth-of-type(88) {
+        width: 528px;
+        height: 528px;
+        z-index: -48;
+        -webkit-animation-duration: 1.3636363636s;
+        -moz-animation-duration: 1.3636363636s;
+        animation-duration: 1.3636363636s;
+      }
+      .half-circle:nth-of-type(89) {
+        width: 534px;
+        height: 534px;
+        z-index: -49;
+        -webkit-animation-duration: 1.3483146067s;
+        -moz-animation-duration: 1.3483146067s;
+        animation-duration: 1.3483146067s;
+      }
+      .half-circle:nth-of-type(90) {
+        width: 540px;
+        height: 540px;
+        z-index: -50;
+        -webkit-animation-duration: 1.3333333333s;
+        -moz-animation-duration: 1.3333333333s;
+        animation-duration: 1.3333333333s;
+      }
+      .half-circle:nth-of-type(91) {
+        width: 546px;
+        height: 546px;
+        z-index: -51;
+        -webkit-animation-duration: 1.3186813187s;
+        -moz-animation-duration: 1.3186813187s;
+        animation-duration: 1.3186813187s;
+      }
+      .half-circle:nth-of-type(92) {
+        width: 552px;
+        height: 552px;
+        z-index: -52;
+        -webkit-animation-duration: 1.3043478261s;
+        -moz-animation-duration: 1.3043478261s;
+        animation-duration: 1.3043478261s;
+      }
+      .half-circle:nth-of-type(93) {
+        width: 558px;
+        height: 558px;
+        z-index: -53;
+        -webkit-animation-duration: 1.2903225806s;
+        -moz-animation-duration: 1.2903225806s;
+        animation-duration: 1.2903225806s;
+      }
+      .half-circle:nth-of-type(94) {
+        width: 564px;
+        height: 564px;
+        z-index: -54;
+        -webkit-animation-duration: 1.2765957447s;
+        -moz-animation-duration: 1.2765957447s;
+        animation-duration: 1.2765957447s;
+      }
+      .half-circle:nth-of-type(95) {
+        width: 570px;
+        height: 570px;
+        z-index: -55;
+        -webkit-animation-duration: 1.2631578947s;
+        -moz-animation-duration: 1.2631578947s;
+        animation-duration: 1.2631578947s;
+      }
+      .half-circle:nth-of-type(96) {
+        width: 576px;
+        height: 576px;
+        z-index: -56;
+        -webkit-animation-duration: 1.25s;
+        -moz-animation-duration: 1.25s;
+        animation-duration: 1.25s;
+      }
+      .half-circle:nth-of-type(97) {
+        width: 582px;
+        height: 582px;
+        z-index: -57;
+        -webkit-animation-duration: 1.2371134021s;
+        -moz-animation-duration: 1.2371134021s;
+        animation-duration: 1.2371134021s;
+      }
+      .half-circle:nth-of-type(98) {
+        width: 588px;
+        height: 588px;
+        z-index: -58;
+        -webkit-animation-duration: 1.2244897959s;
+        -moz-animation-duration: 1.2244897959s;
+        animation-duration: 1.2244897959s;
+      }
+      .half-circle:nth-of-type(99) {
+        width: 594px;
+        height: 594px;
+        z-index: -59;
+        -webkit-animation-duration: 1.2121212121s;
+        -moz-animation-duration: 1.2121212121s;
+        animation-duration: 1.2121212121s;
+      }
+      .half-circle:nth-of-type(100) {
+        width: 600px;
+        height: 600px;
+        z-index: -60;
+        -webkit-animation-duration: 1.2s;
+        -moz-animation-duration: 1.2s;
+        animation-duration: 1.2s;
+      }
+      .half-circle:nth-of-type(101) {
+        width: 606px;
+        height: 606px;
+        z-index: -61;
+        -webkit-animation-duration: 1.1881188119s;
+        -moz-animation-duration: 1.1881188119s;
+        animation-duration: 1.1881188119s;
+      }
+      .half-circle:nth-of-type(102) {
+        width: 612px;
+        height: 612px;
+        z-index: -62;
+        -webkit-animation-duration: 1.1764705882s;
+        -moz-animation-duration: 1.1764705882s;
+        animation-duration: 1.1764705882s;
+      }
+      .half-circle:nth-of-type(103) {
+        width: 618px;
+        height: 618px;
+        z-index: -63;
+        -webkit-animation-duration: 1.1650485437s;
+        -moz-animation-duration: 1.1650485437s;
+        animation-duration: 1.1650485437s;
+      }
+      .half-circle:nth-of-type(104) {
+        width: 624px;
+        height: 624px;
+        z-index: -64;
+        -webkit-animation-duration: 1.1538461538s;
+        -moz-animation-duration: 1.1538461538s;
+        animation-duration: 1.1538461538s;
+      }
+      .half-circle:nth-of-type(105) {
+        width: 630px;
+        height: 630px;
+        z-index: -65;
+        -webkit-animation-duration: 1.1428571429s;
+        -moz-animation-duration: 1.1428571429s;
+        animation-duration: 1.1428571429s;
+      }
+      .half-circle:nth-of-type(106) {
+        width: 636px;
+        height: 636px;
+        z-index: -66;
+        -webkit-animation-duration: 1.1320754717s;
+        -moz-animation-duration: 1.1320754717s;
+        animation-duration: 1.1320754717s;
+      }
+      .half-circle:nth-of-type(107) {
+        width: 642px;
+        height: 642px;
+        z-index: -67;
+        -webkit-animation-duration: 1.1214953271s;
+        -moz-animation-duration: 1.1214953271s;
+        animation-duration: 1.1214953271s;
+      }
+      .half-circle:nth-of-type(108) {
+        width: 648px;
+        height: 648px;
+        z-index: -68;
+        -webkit-animation-duration: 1.1111111111s;
+        -moz-animation-duration: 1.1111111111s;
+        animation-duration: 1.1111111111s;
+      }
+      .half-circle:nth-of-type(109) {
+        width: 654px;
+        height: 654px;
+        z-index: -69;
+        -webkit-animation-duration: 1.1009174312s;
+        -moz-animation-duration: 1.1009174312s;
+        animation-duration: 1.1009174312s;
+      }
+      .half-circle:nth-of-type(110) {
+        width: 660px;
+        height: 660px;
+        z-index: -70;
+        -webkit-animation-duration: 1.0909090909s;
+        -moz-animation-duration: 1.0909090909s;
+        animation-duration: 1.0909090909s;
+      }
+      .half-circle:nth-of-type(111) {
+        width: 666px;
+        height: 666px;
+        z-index: -71;
+        -webkit-animation-duration: 1.0810810811s;
+        -moz-animation-duration: 1.0810810811s;
+        animation-duration: 1.0810810811s;
+      }
+      .half-circle:nth-of-type(112) {
+        width: 672px;
+        height: 672px;
+        z-index: -72;
+        -webkit-animation-duration: 1.0714285714s;
+        -moz-animation-duration: 1.0714285714s;
+        animation-duration: 1.0714285714s;
+      }
+      .half-circle:nth-of-type(113) {
+        width: 678px;
+        height: 678px;
+        z-index: -73;
+        -webkit-animation-duration: 1.0619469027s;
+        -moz-animation-duration: 1.0619469027s;
+        animation-duration: 1.0619469027s;
+      }
+      .half-circle:nth-of-type(114) {
+        width: 684px;
+        height: 684px;
+        z-index: -74;
+        -webkit-animation-duration: 1.0526315789s;
+        -moz-animation-duration: 1.0526315789s;
+        animation-duration: 1.0526315789s;
+      }
+      .half-circle:nth-of-type(115) {
+        width: 690px;
+        height: 690px;
+        z-index: -75;
+        -webkit-animation-duration: 1.0434782609s;
+        -moz-animation-duration: 1.0434782609s;
+        animation-duration: 1.0434782609s;
+      }
+      .half-circle:nth-of-type(116) {
+        width: 696px;
+        height: 696px;
+        z-index: -76;
+        -webkit-animation-duration: 1.0344827586s;
+        -moz-animation-duration: 1.0344827586s;
+        animation-duration: 1.0344827586s;
+      }
+      .half-circle:nth-of-type(117) {
+        width: 702px;
+        height: 702px;
+        z-index: -77;
+        -webkit-animation-duration: 1.0256410256s;
+        -moz-animation-duration: 1.0256410256s;
+        animation-duration: 1.0256410256s;
+      }
+      .half-circle:nth-of-type(118) {
+        width: 708px;
+        height: 708px;
+        z-index: -78;
+        -webkit-animation-duration: 1.0169491525s;
+        -moz-animation-duration: 1.0169491525s;
+        animation-duration: 1.0169491525s;
+      }
+      .half-circle:nth-of-type(119) {
+        width: 714px;
+        height: 714px;
+        z-index: -79;
+        -webkit-animation-duration: 1.0084033613s;
+        -moz-animation-duration: 1.0084033613s;
+        animation-duration: 1.0084033613s;
+      }
+      .half-circle:nth-of-type(120) {
+        width: 720px;
+        height: 720px;
+        z-index: -80;
+        -webkit-animation-duration: 1s;
+        -moz-animation-duration: 1s;
+        animation-duration: 1s;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12">
+          <h1 align="center">Sentiment Analysis <span id="for"></span></h1>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <form
+            class="form-inline justify-content-center"
+            action="#"
+            id="tweet"
+          >
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Enter keyword"
+              id="keyword"
+              required
+              style="margin-right: 1%;"
+            />
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
+        </div>
+      </div>
+      <div id="hr"></div>
+      <div id="sp"></div>
+      <div class="row">
+        <div class="col-sm-6">
+          <div id="sen">
+            <div id="schart"></div>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div id="lan">
+            <div id="lchart"></div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <div id="tweets">
+            <div id="tweet_heading"></div>
+            <div id="tweet_body"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+      integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+      integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+      integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+      google.charts.load("current", {
+        packages: ["corechart"]
+      });
+      var url = "http://127.0.0.1:5000/?query=";
+      var positive,
+        negative,
+        neutral = 0;
+      $("#tweet").submit(function(e) {
+        e.preventDefault();
+        var spinner_html ="<div class='half-circle'></div><div class='half-circle'></div><div class='half-circle'></div><div class='half-circle'></div><div class='half-circle'></div><div class='half-circle'></div><div class='half-circle'></div><div class='half-circle'></div><div class='half-circle'></div><div class='half-circle'></div><div class='half-circle'></div><div class='half-circle'></div><div class='half-circle'></div><div class='half-circle'></div><div class='half-circle'></div><div class='half-circle'></div><div class='half-circle'></div><div class='half-circle'></div><div class='half-circle'></div>";
+        var keyword = $('#keyword')[0].value;
+        if (keyword.length > 0) {
+          $("#schart").html("");
+          $("#lchart").html("");
+          $("#tweet_heading").html("");
+          $("#tweet_body").html("");
+          $("#sp").html(spinner_html);
+          var u = url + keyword;
+          $.ajax({
+            url: u,
+            success: function(response) {
+              $("#for").html("for " + keyword);
+              $("#hr").html("<hr/>");
+              positive = response["Sentiment"]["positive"];
+              negative = response["Sentiment"]["negative"];
+              neutral = response["Sentiment"]["neutral"];
+              $("#sp").html('');
+              schart(positive, negative, neutral);
+              language_chart(response["Languages"]);
+              tweets(response["Tweets"]["tweets"]);
+            }
+          });
+        }
+      });
+
+      function schart(pos, neg, neu) {
+        var data = google.visualization.arrayToDataTable([
+          ["Sentiment", "Value"],
+          ["Positive", pos],
+          ["Negative", neg],
+          ["Neutral", neu]
+        ]);
+        var options = {
+          title: "Sentiment Analysis"
+        };
+        var chart = new google.visualization.PieChart(
+          document.getElementById("schart")
+        );
+        chart.draw(data, options);
+      }
+
+      function language_chart(lang_data) {
+        console.log(lang_data);
+        lang_obj = JSON.parse(JSON.stringify(lang_data));
+        var data = new google.visualization.DataTable();
+        data.addColumn("string", "Language");
+        data.addColumn("number", "Count");
+        var lData = [];
+        for (let key in lang_obj) {
+          if (lang_obj.hasOwnProperty(key)) {
+            lData.push([key, lang_obj[key]]);
+          }
+        }
+        data.addRows(lData);
+        var options = {
+          title: "Language Analysis"
+        };
+        var chart = new google.visualization.PieChart(
+          document.getElementById("lchart")
+        );
+        chart.draw(data, options);
+      }
+
+      function tweets(tweets) {
+        console.log(tweets);
+        $("#tweet_heading").html('<hr/><h1 align="center">Source Tweets </h1>');
+        var id = 0;
+        $.each(tweets, function(key, value) {
+          id = id + 1;
+          pid = "page" + id;
+          var twt =
+            '<div class="tw-block-parent id' +
+            '="' +
+            pid +
+            '"><div class="timeline-TweetList-tweet"> <div class="timeline-Tweet"><div class="timeline-Tweet-brand"><div class="Icon Icon--twitter"></div> </div><div class="timeline-Tweet-author"><div class="TweetAuthor"><a class="TweetAuthor-link" href="' +
+            "https://twitter.com/" +
+            tweets[key]["screen_name"] +
+            '" target="_blank"></a><span class="TweetAuthor-avatar"><div class="Avatar"><img src="' +
+            tweets[key]["profile_image"] +
+            '"/></div></span><span class="TweetAuthor-name">' +
+            tweets[key]["name"] +
+            '</span><span class="TweetAuthor-screenName">' +
+            tweets[key]["screen_name"] +
+            '</span></div></div><div class="timeline-Tweet-text"><a href="' +
+            tweets[key]["url"] +
+            '" target="_blank"</a>' +
+            tweets[key]["Tweet_Text"] +
+            '</div><div class="timeline-Tweet-metadata"><span class="timeline-Tweet-timestamp">' +
+            tweets[key]["created_at"] +
+            "</span></div></div></div></div></li>";
+
+          $("#tweet_body").append(twt);
+          $("#tweet_body").append(
+            '<ul id="pagination-demo" class="pagination-lg pull-right">'
+          );
+        });
+      }
+    </script>
+    <script src="https://www.jqueryscript.net/demo/Easy-Any-Content-Pagination-Plugin-jQuery-Paginate-js/jquery.paginate.js"></script>
+  </body>
+</html>
