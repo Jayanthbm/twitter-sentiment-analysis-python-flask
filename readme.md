@@ -6,7 +6,7 @@
 4.Jquery<br/>
 5.CSS<br/>
 
-<h4>ackages Used</h4>
+<h4>Packages Used</h4>
 1.Flask<br/>
 2.Flask-RESTful<br/>
 3.tweepy<br/>
